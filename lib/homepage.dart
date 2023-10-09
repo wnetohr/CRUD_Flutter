@@ -14,6 +14,7 @@ class _HomePageState extends State<HomePage> {
   bool _isLoading = true;
   //Atualizando itens
   void _reloadItens() async {
+    print('to tentando');
     final data = await SQLHelper.getItens();
     setState(() {
       _itens = data;
@@ -25,11 +26,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _reloadItens();
+    print('dentro do initstate');
   }
 
-  //Controladores para receber os dados de title e desc
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descController = TextEditingController();
   //Criando item no banco de dados
   Future<void> _addItem() async {
     await SQLHelper.createDate(_titleController.text, _descController.text);
@@ -51,7 +50,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   //Verifica se os campos estão preenchidos
-  void showButtomSheet(int? id) async {
+  void showBottomSheet(int? id) async {
     if (id != null) {
       final haveData = _itens.firstWhere((element) => element['id'] == id);
       _titleController.text = haveData['title'];
@@ -63,12 +62,53 @@ class _HomePageState extends State<HomePage> {
         isScrollControlled: true,
         context: context,
         builder: (_) => Container(
+              padding: EdgeInsets.only(
+                  top: 30,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 50,
+                  left: 15,
+                  right: 15),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: [],
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  TextField(
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(), hintText: 'Título'),
+                  ),
+                  SizedBox(height: 15),
+                  TextField(
+                    maxLines: 4,
+                    controller: _descController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(), hintText: 'Descrição'),
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (id == null) {
+                          await _addItem();
+                        } else {
+                          await _updateItem(id);
+                        }
+                        //Limpando campos
+                        _titleController.text = '';
+                        _descController.text = '';
+                        //Saindo da tela de edição
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Adicionar'),
+                    ),
+                  )
+                ],
               ),
             ));
   }
+
+  //Controladores para receber os dados de title e desc
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
