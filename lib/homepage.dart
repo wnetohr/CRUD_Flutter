@@ -10,7 +10,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> _itens = [];
-
   bool _isLoading = true;
   //Atualizando itens
   void _reloadItens() async {
@@ -98,7 +97,7 @@ class _HomePageState extends State<HomePage> {
                         //Saindo da tela de edição
                         Navigator.of(context).pop();
                       },
-                      child: Text('Adicionar'),
+                      child: Text(id == null ? 'Adicionar' : 'Atualizar'),
                     ),
                   )
                 ],
@@ -128,20 +127,23 @@ class _HomePageState extends State<HomePage> {
             )
           : ListView.builder(
               itemCount: _itens.length,
-              itemBuilder: (context, index) {
-                Card(
-                  child: ListTile(
-                    title: Text(
-                      _itens[index]['title'],
-                      style: TextStyle(fontSize: 25),
+              itemBuilder: (context, index) => Card(
+                    child: ListTile(
+                      onTap: () => showBottomSheet(_itens[index]['id']),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () async { await _deleteItem(_itens[index]['id']);},
+                      ),
+                      title: Text(
+                        _itens[index]['title'],
+                        style: TextStyle(fontSize: 25),
+                      ),
+                      subtitle: Text(
+                        _itens[index]['desc'],
+                        style: TextStyle(),
+                      ),
                     ),
-                    subtitle: Text(
-                      _itens[index]['desc'],
-                      style: TextStyle(),
-                    ),
-                  ),
-                );
-              }),
+                  )),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showBottomSheet(null),
         child: Icon(Icons.add),
